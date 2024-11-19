@@ -1,0 +1,57 @@
+version: '3.8'
+
+networks:
+  proxy_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${PROXY_NETWORK_SUBNET}
+
+services:
+  # Nginx Proxy Manager
+  nginx-proxy-manager:
+    container_name: nginx-proxy-manager
+    image: jc21/nginx-proxy-manager:latest
+    hostname: npm-gateway
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "81:81"     # Admin interface
+    env_file:
+      - example.env
+    volumes:
+      - './data:/data'
+      - './letsencrypt:/etc/letsencrypt'
+    restart: unless-stopped
+    networks:
+      - proxy_network
+    depends_on:
+      nginx-proxy-manager-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:81/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database for Nginx Proxy Manager
+  nginx-proxy-manager-db:
+    container_name: nginx-proxy-manager-db
+    image: mariadb:10.11
+    hostname: npm-db
+    env_file:
+      - example.env
+    volumes:
+      - './mysql:/var/lib/mysql'
+    restart: unless-stopped
+    networks:
+      - proxy_network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command:
+      - --innodb-buffer-pool-size=64M
+      - --innodb-log-file-size=32M
+      - --max-connections=100
