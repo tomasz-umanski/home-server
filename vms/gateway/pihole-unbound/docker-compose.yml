@@ -1,0 +1,37 @@
+networks:
+  dns_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${DNS_NETWORK_SUBNET}
+  proxy:
+    external: true
+
+services:
+  # Pi-hole DNS Server and Ad Blocker
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    networks:
+      dns_network:
+        ipv4_address: ${PIHOLE_IP}
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8080:80/tcp"  # Pi-hole admin interface
+    env_file:
+      - .env
+    volumes:
+      - './etc-pihole/:/etc/pihole/'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d/'
+    restart: unless-stopped
+  # Unbound Recursive DNS Server
+  unbound:
+    container_name: unbound
+    image: mvance/unbound:latest
+    networks:
+      dns_network:
+        ipv4_address: ${UNBOUND_IP}
+    volumes:
+      - './unbound/:/opt/unbound/etc/unbound'
+    restart: unless-stopped
