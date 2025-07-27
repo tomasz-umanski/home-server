@@ -60,21 +60,10 @@ if lvs | grep -q "data"; then
     echo "Extending root volume..."
     lvextend -l +100%FREE /dev/pve/root
     resize2fs /dev/mapper/pve-root
-    REBOOT_REQUIRED=true
 else
     echo "No data volume found to remove"
 fi
 
-# 5. Restart Proxmox services
-echo "Restarting Proxmox services..."
-systemctl restart pveproxy
-systemctl restart pvedaemon
-
 # Final summary
 echo
 echo "=== Bootstrap completed successfully! ==="
-
-if [ "$REBOOT_REQUIRED" = true ]; then
-    echo "Rebooting system..."
-    reboot
-fi
