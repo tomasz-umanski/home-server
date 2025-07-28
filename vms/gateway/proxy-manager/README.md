@@ -25,55 +25,85 @@ Nginx Proxy Manager provides a web-based interface for managing reverse proxy co
       - Password: changeme
 
 ## Root SSL Configuration
-1. Create local CA
+1. Create Local Certificate Authority (CA)
     ```
     mkdir -p ~/local-ca/{certs,private,csr}
     cd ~/local-ca
-   
+    
+    # Generate root private key
     openssl genrsa -out private/rootCA.key 4096
-   
+    
+    # Create root certificate (valid for 10 years)
     openssl req -x509 -new -nodes -key private/rootCA.key -sha256 -days 3650 \
       -out certs/rootCA.pem \
-      -subj "/C=PL/ST=Local/L=Lab/O=HomeLab/OU=CA/CN=HomeLab Root CA" 
+      -subj "/C=PL/ST=Local/L=Lab/O=HomeLab/OU=CA/CN=HomeLab Root CA"
     ```
-2. Install root CA on local device.
+2. Install Root CA on Local Device 
+   - open Keychain Access, drag rootCA.pem into System, double-click → expand Trust → set Always Trust.
 
-## Host Configuration
-1. Create cert for service
-   ```
-   openssl genrsa -out private/{service}.lab.lan.key 2048
-   
-   openssl req -new -key private/{service}.lab.lan.key -out csr/{service}.lab.lan.csr \
-   -subj "/C=PL/ST=Local/L=Lab/O=HomeLab/CN={service}.lab.lan"
-   
-   openssl x509 -req -in csr/{service}.lab.lan.csr -CA certs/rootCA.pem -CAkey private/rootCA.key \
-   -CAcreateserial -out certs/{service}.lab.lan.crt -days 825 -sha256
-   ```
-2. Install certs in NPM 
+## Host SSL Certificate Configuration
+1. Assign Service variable
+    ```
+    SERVICE="pve"  # Change this to your actual service name
+    ```
+2. Generate required files
+    ```
+    # Generate private key
+    openssl genrsa -out private/${SERVICE}.lab.lan.key 2048
+    
+    # Create a Certificate Signing Request (CSR)
+    openssl req -new -key private/${SERVICE}.lab.lan.key \
+    -out csr/${SERVICE}.lab.lan.csr \
+    -subj "/C=PL/ST=Local/L=Lab/O=HomeLab/CN=${SERVICE}.lab.lan"
+    
+    # Create a SAN configuration file
+    cat > ~/local-ca/san-${SERVICE}.ext << EOF
+    authorityKeyIdentifier=keyid,issuer
+    basicConstraints=CA:FALSE
+    keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+    subjectAltName = @alt_names
+    
+    [alt_names]
+    DNS.1 = ${SERVICE}.lab.lan
+    EOF
+    
+    # Sign the certificate with SAN extension
+    openssl x509 -req -in csr/${SERVICE}.lab.lan.csr \
+    -CA certs/rootCA.pem -CAkey private/rootCA.key -CAcreateserial \
+    -out certs/${SERVICE}.lab.lan.crt -days 825 -sha256 \
+    -extfile san-${SERVICE}.ext
+    
+    # Create a fullchain certificate
+    cat certs/${SERVICE}.lab.lan.crt certs/rootCA.pem > certs/fullchain.${SERVICE}.lab.lan.crt
+    ```
+## Nginx Proxy Manager Setup
+1. Install Certificates in Nginx Proxy Manager
    - Go to "SSL Certificates"
    - Click “Add SSL Certificate” → “Custom” 
    - Provide:
-      - Name: {service}.lab.lan 
-      - Certificate File: {service}.lab.lan.crt 
-      - Key File: {service}.lab.lan.key
+      - Name: ${SERVICE}.lab.lan 
+      - Certificate File: contents of certs/fullchain.${SERVICE}.lab.lan.crt
+      - Key File: contents of private/${SERVICE}.lab.lan.key
    - Save
-3. Add new Host
+2. Add New Host in Nginx Proxy Manager
    - Go to "Proxy Hosts"
    - Click “Add Proxy Host”
    - Provide required details
-     - Domain Name: {service}.lab.lan 
-     - Scheme: http or https (depending on your service)
+     - Domain Name: ${SERVICE}.lab.lan 
+     - Scheme: http or https (depending on service)
      - Forward Hostname/IP: Internal IP of the service (e.g. 192.168.0.142)
      - Forward Port: e.g. 8006 
      - Select: “Block Common Exploits”
    - Go to "SSL Certificate"
-     - Select proper cert
+     - SSL Certificate: select ${SERVICE}.lab.lan from dropdown
      - Check "Force SSL" and "HTTP/2 Support"
    - Save
-4. Configure local DNS on Pi-hole
+
+## Configure Local DNS in Pi-hole
+1. Configure local DNS on Pi-hole
    - Open Pi-hole admin panel
    - Navigate to Local DNS → DNS Records 
    - Add a new entry:
-     - Domain: {service}.lab.lan 
+     - Domain: ${SERVICE}.lab.lan 
      - IP Address: IP of your NPM host (e.g. 192.168.0.245)
    - Save the record
