@@ -11,14 +11,14 @@ This setup deploys Pi-hole for network-wide ad blocking, backed by Unbound for s
     ```
 2. Download required files
     ```
-    wget -O docker-compose.yml https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/docker-compose.yml
-    wget -O .env https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/example.env
-    wget -O unbound.conf https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/unbound.conf
+    sudo wget -O docker-compose.yml https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/docker-compose.yml
+    sudo wget -O .env https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/example.env
+    sudo wget -O unbound/unbound.conf https://raw.githubusercontent.com/tomasz-umanski/home-server/main/vms/gateway/pihole-unbound/unbound.conf
     ```
 3. Adjust downloaded .env file
 4. Deploy service
     ```
-    sudo docker-compose up -d
+    sudo docker compose up -d
     ```
 5. Configure Pi-hole password
    ```

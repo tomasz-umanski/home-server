@@ -11,7 +11,7 @@ The Gateway VM serves as the network services hub, providing DNS filtering and r
 - RAM: 1GB 
 - Disk: 8GB 
 - OS: Debian 12.10.0
-- Hostname: gateway.homelab.local
+- Hostname: gateway.lab.lan
 
 ## Quick Start
 - Deploy VM using proxmox

@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   proxy_network:
     driver: bridge
@@ -18,7 +16,7 @@ services:
       - "443:443"   # HTTPS
       - "81:81"     # Admin interface
     env_file:
-      - example.env
+      - .env
     volumes:
       - './data:/data'
       - './letsencrypt:/etc/letsencrypt'
@@ -33,14 +31,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
   # Database for Nginx Proxy Manager
   nginx-proxy-manager-db:
     container_name: nginx-proxy-manager-db
     image: mariadb:10.11
     hostname: npm-db
     env_file:
-      - example.env
+      - .env
     volumes:
       - './mysql:/var/lib/mysql'
     restart: unless-stopped

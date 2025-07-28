@@ -11,8 +11,7 @@ The TV Streaming VM serves as the entertainment services hub.
 - RAM: 1GB
 - Disk: 8GB
 - OS: Debian 12.10.0
-- Hostname: tv-streaming.homelab.local
-- User: homelab
+- Hostname: tv-streaming.lab.lan
 
 ## Quick Start
 - Deploy VM using proxmox

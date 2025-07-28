@@ -14,7 +14,7 @@
 2. Create bootable USB drive
 
 ## **Installation Process**
-- Hostname: pve.homelab.local
+- Hostname: pve.lab.lan
 
 ## **Post-Installation Configuration**
 ### 1. Initial Access
