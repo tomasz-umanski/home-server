@@ -12,6 +12,7 @@ services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
+    hostname: pihole
     networks:
       dns_network:
         ipv4_address: ${PIHOLE_IP}
