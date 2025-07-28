@@ -21,14 +21,15 @@
 1. Access web interface: https://[PROXMOX-IP]:8006/
 2. Login with root and password set during installation
 3. Run the bootstrap script
-```bash
-wget -O bootstrap.sh https://raw.githubusercontent.com/tomasz-umanski/home-server/main/proxmox/bootstrap.sh
-chmod +x bootstrap.sh
-./bootstrap.sh
-```
+   ```bash
+   wget -O bootstrap.sh https://raw.githubusercontent.com/tomasz-umanski/home-server/main/proxmox/bootstrap.sh
+   chmod +x bootstrap.sh
+   ./bootstrap.sh
+   ```
 4. Remove local-lvm storage from web interface first: Datacenter > Storage > local-lvm > Remove
 5. Add disk image content to local storage: Datacenter > Storage > local > edit > Content > Disk image
-6. Reboot proxmox
-```bash
-reboot
-```
+6. Change ip address to static: Node > System > Network > edit > IPv4/CIDR 
+7. Reboot proxmox
+   ```bash
+   reboot
+   ```
