@@ -93,7 +93,7 @@ Nginx Proxy Manager provides a web-based interface for managing reverse proxy co
      - Scheme: http or https (depending on service)
      - Forward Hostname/IP: Internal IP of the service (e.g. 192.168.0.142)
      - Forward Port: e.g. 8006 
-     - Select: “Block Common Exploits”
+     - Select: “Block Common Exploits” and "Websockets Support" if applicable
    - Go to "SSL Certificate"
      - SSL Certificate: select ${SERVICE}.lab.lan from dropdown
      - Check "Force SSL" and "HTTP/2 Support"
