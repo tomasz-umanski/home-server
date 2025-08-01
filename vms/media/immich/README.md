@@ -21,6 +21,7 @@ Self-hosted photo and video management solution
     ```
 5. Access Service
     - Proxy Manager Admin: https://[MEDIA-IP]:2283
+    - Import settings from immich-config.json file
 6. Configure reverse proxy using proxy-manager
 
-In case of any problems go to [Immich docs](https://immich.app/docs/install/docker-compose/)
+In case of any problems go to [Immich addocs](https://immich.app/docs/install/docker-compose/)
